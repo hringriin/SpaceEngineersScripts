@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GernerateRunningLights", "GernerateRunningLights\GernerateRunningLights.csproj", "{C67B4597-83FA-4E95-B595-4A303AC346AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C67B4597-83FA-4E95-B595-4A303AC346AC}.Debug|x64.ActiveCfg = Debug|x64
+		{C67B4597-83FA-4E95-B595-4A303AC346AC}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14FE4910-320A-4FE6-93FB-CD07816D7CE3}
+	EndGlobalSection
+EndGlobal
