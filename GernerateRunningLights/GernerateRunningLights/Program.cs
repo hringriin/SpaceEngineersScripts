@@ -1,75 +1,140 @@
-﻿using Sandbox.Game.EntityComponents;
+﻿// @Author: el_barzh
+
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using SpaceEngineers.Game.ModAPI.Ingame;
 using System.Collections.Generic;
-using System.Collections;
 using System.Linq;
-using System.Text;
 using System;
-using VRage.Collections;
-using VRage.Game.Components;
-using VRage.Game.ModAPI.Ingame;
-using VRage.Game.ModAPI.Ingame.Utilities;
-using VRage.Game.ObjectBuilders.Definitions;
-using VRage.Game;
-using VRageMath;
 
 namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
-        // This file contains your actual script.
-        //
-        // You can either keep all your code here, or you can create separate
-        // code files to make your program easier to navigate while coding.
-        //
-        // In order to add a new utility class, right-click on your project, 
-        // select 'New' then 'Add Item...'. Now find the 'Space Engineers'
-        // category under 'Visual C# Items' on the left hand side, and select
-        // 'Utility Class' in the main area. Name it in the box below, and
-        // press OK. This utility class will be merged in with your code when
-        // deploying your final script.
-        //
-        // You can also simply create a new utility class manually, you don't
-        // have to use the template if you don't want to. Just do so the first
-        // time to see what a utility class looks like.
+        /**
+         * This programm / script will accept a BlockGroup of interior Lights
+         * and make a beautiful running light of them.
+         * 
+         * You need to modify your blink length and interval by yourself! The
+         * script only regulates the offset!
+         */
 
-        public Program()
-        {
-            // The constructor, called only once every session and
-            // always before any other method is called. Use it to
-            // initialize your script. 
-            //     
-            // The constructor is optional and can be removed if not
-            // needed.
-            // 
-            // It's recommended to set RuntimeInfo.UpdateFrequency 
-            // here, which will allow your script to run itself without a 
-            // timer block.
-        }
+        // the lights
+        private List<IMyInteriorLight> lights;
 
-        public void Save()
-        {
-            // Called when the program needs to save its state. Use
-            // this method to save your state to the Storage field
-            // or some other means. 
-            // 
-            // This method is optional and can be removed if not
-            // needed.
-        }
-
+        /**
+         * Have a look at the ReadMe!
+         *
+         * The main entry point of the script, invoked every time
+         * one of the programmable block's Run actions are invoked,
+         * or the script updates itself. The updateSource argument
+         * describes where the update came from. Be aware that the
+         * updateSource is a  bitfield  and might contain more than 
+         * one update type.
+         * 
+         * @Param argument: the BlockGroup to be handled by the script
+         */
         public void Main(string argument, UpdateType updateSource)
         {
-            // The main entry point of the script, invoked every time
-            // one of the programmable block's Run actions are invoked,
-            // or the script updates itself. The updateSource argument
-            // describes where the update came from. Be aware that the
-            // updateSource is a  bitfield  and might contain more than 
-            // one update type.
-            // 
-            // The method itself is required, but the arguments above
-            // can be removed if not needed.
+            // check, if the argument is valid, i.e. it is a string
+            if (argument.Equals("") || argument == null)
+            {
+                Echo("\""
+                    + argument
+                    + "\" is no valid parameter. Enter a BlockGroup name which contains only interior lights!");
+            }
+            else
+            {
+                // get the blockgroup itself. this is not a real list that we
+                // can use
+                IMyBlockGroup lightList = GridTerminalSystem.GetBlockGroupWithName(argument);
+
+                // temporary list, because the BlockGroup itself outputs a list
+                // of the wrong data type
+                List<IMyTerminalBlock> tmpLights = new List<IMyTerminalBlock>();
+                lightList.GetBlocksOfType<IMyInteriorLight>(tmpLights);
+
+                // finally add all the lights to the list, i.e. get the list of
+                // TerminalBlocks and cast them to InteriorLights
+                this.lights = tmpLights.Cast<IMyInteriorLight>().ToList();
+
+                // this string will take care of the leading zeroes, if
+                // necessary
+                String digits = "D" + this.lights.Count.ToString().Length;
+
+                // now we will iterate through all the lights, to make sure
+                // they are named properly
+                foreach (IMyInteriorLight l in this.lights)
+                {
+                    // the *result* string ... for later
+                    String tmp = l.DisplayNameText;
+
+                    // the substring (match) to look for, in this case we
+                    // search the last part of the string for numbers
+                    String match = System.Text.RegularExpressions.Regex.Match(l.DisplayNameText, @"\d+$").Value;
+
+                    // if there is no number, this is our only exception,
+                    // assume it is the first light and has no number
+                    if ( match.Equals("") )
+                    {
+                        match = "1";
+                        tmp = tmp.Insert(tmp.Length, " " + match);
+                    }
+
+                    // substituion string, the match will be replaced with this
+                    String tmpSub = Convert.ToInt32(match).ToString(digits);
+
+                    // actual replacing of the match with the substitution
+                    // string
+                    tmp = System.Text.RegularExpressions.Regex.Replace(
+                        tmp,
+                        match,
+                        tmpSub);
+
+                    // set the custom name, which will be visible in the SE
+                    // interface
+                    l.CustomName = tmp;
+
+
+                    // just some output to see the script did anything ... and
+                    // for debugging purposes *cough*
+                    Echo("Orig:     " + l.DisplayNameText);
+                    Echo("Match:    " + match);
+                    Echo("Sub:      " + tmpSub);
+                    Echo("Result:   " + tmp + "\n");
+                }
+
+                // sorting the list by the display name. setting the display
+                // name is forbidden, changing the customname will change this
+                // as well, though
+                this.lights = this.lights.OrderBy(l => l.DisplayNameText).ToList();
+
+                // call for the actual method, that handles the blink offset
+                this.runningLight();
+            }
+        }
+
+        /**
+         * iterates through the lights and increments their blink offset
+         * // TODO modify the main methods's argument to be able to set this
+         * // while executing the programme
+         */
+        private void runningLight()
+        {
+            // the initial offset
+            float offset = 0;
+            
+            // for each interior light increment the offset by, except if
+            // incrementing would reach to a higher value than 100
+            foreach ( IMyInteriorLight l in this.lights )
+            {
+                l.BlinkOffset = offset;
+
+                if ((offset + 2) <= (float)100)
+                    offset += 2;
+                else
+                    offset = 0;
+            }
         }
     }
 }
