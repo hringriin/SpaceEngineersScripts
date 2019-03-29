@@ -20,6 +20,105 @@ namespace IngameScript
     partial class Program : MyGridProgram
     {
         /*
+         * HOW TO USE?
+         * 
+         * This script will provide the solution to opening a hangar door
+         * remotely from any vehicle. You need the following preparation of a)
+         * your vehicle and b) your base/building/vehicle with the door to be
+         * opened/closed:
+         * 
+         *      a): SENDING (TRANSCEIVER)
+         *          The sender needs a programmable block and a radio antenna.
+         *          - Assign the programmable block to the radio antenna via the
+         *            Control Panel.
+         *          - Rename the antenna / programmable block to whatever you like.
+         *          - Load this script into the programmable block and set
+         *            "transmode = true" in the configuration area below.
+         *          - If you renamed your antenna, also correct the name of
+         *            antennaName = "Antenna" in the configuration area below.
+         *
+         *      b): RECEIVING (RECEIVER)
+         *          The receiver needs a programmable block and a radio antenna.
+         *          - Assign the programmable block to the radio antenna via
+         *            the Control Panel.
+         *          - Rename the antenna / programmable block to whatever you like.
+         *          - Load this script into the programmable block.
+         *          - If you renamed your antenna, also correct the name of
+         *            antennaName = "Antenna" in the configuration area below.
+         *            
+         *      For "authentication", i.e. the transceiver is allowed to enter
+         *      the base, you need to store keys in the receiver script.
+         *      How to do that? Go to the programmable block in the Control
+         *      Panel and enter the following:
+         *      
+         *          addKey<LIM>MyPersonalKey
+         *          
+         *      This will add a key "MyPersonalKey" to the system. Do not care
+         *      about the "<LIM>", due to its purpose of a devider; internal
+         *      stuff, just be sure to add it. I've not tested it, but the key
+         *      is allowed to contain whitespaces (space key), I do not
+         *      recommend it, though.
+         *      
+         *      Now, you'll need to set up your quick bar.
+         *      
+         *      In your vehicle (TRANSCEIVER), open the Toolbar config
+         *      (default: press 'g') and drag the programmable block to the
+         *      quickbar and chose "run". There should now be a popup, asking
+         *      for an argument. There are two sensible arguments. There are
+         *      more possible, but only two need to be quick-bar-ed:
+         *      
+         *          Open the door:
+         *              open<LIM>MyPersonalKey<LIM>HangarDoorOne
+         *              
+         *          Close the door:
+         *              close<LIM>MyPersonalKey<LIM>HangarDoorOne
+         *              
+         *      This will cause the programm to ask the other side to
+         *      open/close "HangarDoorOne" (a block group of hangar doors),
+         *      providing the key "MyPersonalKey".
+         *      
+         *      Please note, that every input is case-sensitive, so be
+         *      attentive.
+         *      
+         *      Now you can close the Toolbar config and press the
+         *      quick-bar-buttons you just assigned and the door 'should'
+         *      open/close. Due to the surrounding circumstances, only
+         *      opening/closing one door at a time will work, pressing two
+         *      buttons at once, e.g. for two different hangar door (groups)
+         *      will result in opening/closing only one of those doors. Just
+         *      keep in mind, that the script might not be as fast as your
+         *      fingers :-)
+         *      
+         * Other possible arguments (with examples) are:
+         * 
+         *      Open a door:
+         *          open<LIM>[KEY]<LIM>[Hangar-Door_BlockGroup_Name]
+         *          
+         *      Close a door:
+         *          close<LIM>[KEY]<LIM>[Hangar-Door_BlockGroup_Name]
+         *          
+         *      Add a key:
+         *          addKey<LIM>[KEY]
+         *          
+         *      Remove a key:
+         *          removeKey<LIM>[KEY]
+         *          
+         *      Remove ALL keys:
+         *          flushKeys
+         *          
+         *      Search for a key, i.e. is it in the system?
+         *          searchKey<LIM>[KEY]
+         *          
+         *          
+         *          
+         * IMPORTANT NOTICE:
+         *      All of the commands mentioned above and below will only work
+         *      for the programmable block you're sitting in front of and
+         *      therefor only for the grid you're working with.
+         *      
+         *      
+         *      
+         *      
          * Example arguments
          * Note, that only TRANSCEIVERS need to actively put arguments into
          * their programmable blocks' calls.
