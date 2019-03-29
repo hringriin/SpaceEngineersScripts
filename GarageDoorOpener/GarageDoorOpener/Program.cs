@@ -164,70 +164,44 @@ namespace IngameScript
 
         // END SCRIPT CONFIGURATION
 
-        //String[] myStorage;
-
         public Program()
         {
             if (this.transmode)
-                Echo("Initialising GarageDoor opener as transceiver.");
+                Echo("\nInitialising GarageDoor opener as transceiver.");
             else
-                Echo("Initialising GarageDoor opener as receiver.");
+                Echo("\nInitialising GarageDoor opener as receiver.");
 
             antenna = (IMyRadioAntenna)GridTerminalSystem.GetBlockWithName(this.antennaName);
             keys = new List<String>();
 
-            // BEGIN LIST OF KEYS
-            //keys.Add("EXAMPLE_KEY");
-            // END LIST OF KEYS
+            String[] storedData = Storage.Split(';');
 
-            /*
-             * SAVING DOES NOT WORK.
-             * 
-            if (this.Storage.Length > 0)
+            if ( storedData.Length > 0 )
             {
-                Echo("Storage Length: " + this.Storage.Length);
-                myStorage = this.Storage.Split(new String[] { "\n" }, StringSplitOptions.None);
-
-                Echo("Storage:");
-                foreach ( String s in myStorage)
+                Echo("\nRecovering stored Data");
+                foreach ( String s in storedData)
                 {
                     this.keys.Add(s);
                 }
             }
-
-            if (this.keys.Count > 0 )
-            {
-                Echo("Keys:");
-                foreach ( String k in this.keys )
-                {
-                    Echo(k);
-                }
-            }
-            */
         }
 
         public void Save()
         {
-            /*
-             * SAVING DOES NOT WORK
-             * 
-            Echo("NULLING");
-            this.Storage = null;
+            Echo("\nClearing Storage");
+            this.Storage = "";
 
-            Echo("Saving ...");
+            Echo("\nSaving Data");
             if ( this.keys.Count > 0 )
             {
-                this.Storage += "\n";
+                foreach ( String s in this.keys )
+                {
+                    if (this.Storage.Length == 0)
+                        this.Storage = s;
+                    else
+                        this.Storage = String.Join(";", this.Storage, s);
+                }
             }
-
-            foreach ( String s in this.keys )
-            {
-                this.Storage += s;
-            }
-            Echo("... done!");
-
-            Echo(this.Storage);
-            */
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -242,14 +216,17 @@ namespace IngameScript
                         this.AddKeyToList(splits[1]);
                         break;
 
+                    case "removeKey":
+                        this.RemoveKeyFromList(splits[1]);
+                        break;
+
                     case "searchKey":
-                        this.SearchKey(splits[1]);
+                        this.MatchKeys(splits[1]);
                         break;
 
                     default:
-                        Echo("Default");
-                        Echo("Argument not understandable.");
-                        Echo("The String has to consist of a key, an argument and a block group, separated only by <LIM>");
+                        Echo("\nArgument not understandable.");
+                        Echo("\nThe String has to consist of a key, an argument and a block group, separated only by <LIM>");
                         break;
                 }
 
@@ -264,7 +241,7 @@ namespace IngameScript
                     }
                     else
                     {
-                        Echo("Cannot transmit message!");
+                        Echo("\nCannot transmit message!");
                     }
                 }
                 else
@@ -288,7 +265,7 @@ namespace IngameScript
                     }
                     else
                     {
-                        Echo("Argument invalid, i.e. null or empty");
+                        Echo("\nArgument invalid, i.e. null or empty");
                     }
                 }
             }
@@ -306,10 +283,13 @@ namespace IngameScript
         private Boolean MatchKeys(String pKey)
         {
             if (this.keys.Contains(pKey))
+            {
+                Echo("\nKey match!");
                 return true;
+            }
             else
             {
-                Echo("Key does not match!");
+                Echo("\nKey does not match!");
                 return false;
             }
         }
@@ -350,39 +330,39 @@ namespace IngameScript
             }
         }
 
-        private Boolean AddKeyToList(String pString)
+        private Boolean RemoveKeyFromList(String pKey)
         {
-            this.keys.Add(pString);
-            if (this.MatchKeys(pString))
+            if ( this.MatchKeys(pKey))
             {
-                Echo("Adding key");
+                Echo("\nRemoving key");
+                this.keys.Remove(pKey);
             }
             else
             {
-                Echo("NOT adding key");
+                Echo("\nNOT removing key");
             }
-            return this.MatchKeys(pString);
+            return this.MatchKeys(pKey);
+        }
+
+        private Boolean AddKeyToList(String pKey)
+        {
+            if (this.MatchKeys(pKey))
+            {
+                Echo("\nNOT adding key");
+            }
+            else
+            {
+                Echo("\nAdding key");
+                this.keys.Add(pKey);
+            }
+            return this.MatchKeys(pKey);
         }
 
         private void FlushKeys()
         {
-            Echo("Flushing keys");
+            Echo("\nFlushing keys");
             Storage = "";
             this.keys.Clear();
-        }
-
-        private Boolean SearchKey(String pString)
-        {
-            if (this.keys.Contains(pString))
-            {
-                Echo("Key found!");
-                return true;
-            }
-            else
-            {
-                Echo("Key not found!");
-                return false;
-            }
         }
     }
 }
