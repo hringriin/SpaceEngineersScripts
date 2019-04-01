@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HydroTankLevel", "HydroTankLevel\HydroTankLevel.csproj", "{9C89B649-F763-4FAA-B24A-842FE0301EB3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C89B649-F763-4FAA-B24A-842FE0301EB3}.Debug|x64.ActiveCfg = Debug|x64
+		{9C89B649-F763-4FAA-B24A-842FE0301EB3}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23BFE5BE-AF3F-44AB-8C99-6C7EF6AA1AC5}
+	EndGlobalSection
+EndGlobal
